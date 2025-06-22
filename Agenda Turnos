@@ -1,0 +1,108 @@
+import java.util.Scanner;
+
+/**
+ * Clase principal del sistema de Agenda de Turnos.
+ * Gestiona el menú y las operaciones de registro, visualización y búsqueda.
+ */
+public class AgendaTurnos {
+    // Capacidad máxima de pacientes en la agenda
+    private static final int MAX_PACIENTES = 100;
+    private static Paciente[] pacientes = new Paciente[MAX_PACIENTES];
+    private static int contador = 0;
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        do {
+            mostrarMenu();
+            opcion = sc.nextInt();
+            sc.nextLine();  // limpia buffer
+
+            switch (opcion) {
+                case 1:
+                    agendarTurno(sc);
+                    break;
+                case 2:
+                    mostrarTurnos();
+                    break;
+                case 3:
+                    buscarPorCedula(sc);
+                    break;
+                case 0:
+                    System.out.println("Saliendo del sistema...");
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+            }
+        } while (opcion != 0);
+
+        sc.close();
+    }
+
+    /**  
+     * Muestra el menú de opciones en consola.  
+     */
+    private static void mostrarMenu() {
+        System.out.println("\n=== MENÚ AGENDA DE TURNOS ===");
+        System.out.println("1. Agendar turno");
+        System.out.println("2. Mostrar todos los turnos");
+        System.out.println("3. Buscar turno por cédula");
+        System.out.println("0. Salir");
+        System.out.print("Seleccione una opción: ");
+    }
+
+    /**
+     * Registra un nuevo turno de paciente.
+     * @param sc Scanner para leer datos desde consola.
+     */
+    private static void agendarTurno(Scanner sc) {
+        if (contador >= MAX_PACIENTES) {
+            System.out.println("Agenda llena. No se pueden agendar más turnos.");
+            return;
+        }
+
+        System.out.print("Nombre: ");
+        String nombre = sc.nextLine();
+        System.out.print("Cédula: ");
+        String cedula = sc.nextLine();
+        System.out.print("Fecha del turno (dd/mm/yyyy hh:mm): ");
+        String fecha = sc.nextLine();
+
+        pacientes[contador++] = new Paciente(nombre, cedula, fecha);
+        System.out.println("Turno agendado correctamente.");
+    }
+
+    /**
+     * Muestra en consola todos los turnos registrados.
+     */
+    private static void mostrarTurnos() {
+        if (contador == 0) {
+            System.out.println("No hay turnos registrados.");
+            return;
+        }
+
+        System.out.println("\n--- Turnos Registrados ---");
+        for (int i = 0; i < contador; i++) {
+            pacientes[i].mostrarDatos();
+        }
+    }
+
+    /**
+     * Busca y muestra el turno de un paciente por su cédula.
+     * @param sc Scanner para leer datos desde consola.
+     */
+    private static void buscarPorCedula(Scanner sc) {
+        System.out.print("Ingrese la cédula a buscar: ");
+        String cedulaBuscada = sc.nextLine();
+
+        for (int i = 0; i < contador; i++) {
+            if (pacientes[i].getCedula().equals(cedulaBuscada)) {
+                System.out.println("\n--- Turno Encontrado ---");
+                pacientes[i].mostrarDatos();
+                return;
+            }
+        }
+        System.out.println("No se encontró turno para esa cédula.");
+    }
+}

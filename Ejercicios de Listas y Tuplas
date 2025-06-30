@@ -1,0 +1,151 @@
+// File: Program.cs
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        // Lista de asignaturas del curso
+        List<string> asignaturas = new()
+        {
+            "Matemáticas",
+            "Física",
+            "Química",
+            "Historia",
+            "Lengua"
+        };
+
+        Console.WriteLine("Asignaturas del curso:");
+        foreach (string asig in asignaturas)
+            Console.WriteLine($"• {asig}");
+    }
+}
+
+
+// File: Program.cs
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        List<string> asignaturas = new()
+        {
+            "Matemáticas",
+            "Física",
+            "Química",
+            "Historia",
+            "Lengua"
+        };
+
+        foreach (string asignatura in asignaturas)
+            Console.WriteLine($"Yo estudio {asignatura}");
+    }
+}
+
+
+// File: Program.cs
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+class Program
+{
+    static void Main()
+    {
+        // 1. Lista de asignaturas
+        List<string> asignaturas = new()
+        {
+            "Matemáticas",
+            "Física",
+            "Química",
+            "Historia",
+            "Lengua"
+        };
+
+        // 2. Pedir la nota de cada asignatura
+        Dictionary<string, double> notas = new();
+        Console.WriteLine("Introduce la nota (0-10) para cada asignatura:");
+        foreach (string asignatura in asignaturas)
+        {
+            double nota;
+            do
+            {
+                Console.Write($"{asignatura}: ");
+            } while (!double.TryParse(Console.ReadLine(),
+                     NumberStyles.Any,
+                     CultureInfo.InvariantCulture,
+                     out nota) || nota < 0 || nota > 10);
+
+            notas[asignatura] = nota;
+        }
+
+        // 3. Mostrar resultados
+        Console.WriteLine("\nResultados:");
+        foreach (var (asig, nota) in notas)
+            Console.WriteLine($"En {asig} has sacado {nota}");
+    }
+}
+
+
+
+
+
+// File: Program.cs
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        // 1. Lista original de asignaturas
+        List<string> asignaturas = new()
+        {
+            "Matemáticas",
+            "Física",
+            "Química",
+            "Historia",
+            "Lengua"
+        };
+
+        // 2. Diccionario <asignatura, nota>
+        var notas = new Dictionary<string, double>();
+
+        Console.WriteLine("Introduce la nota (0-10) para cada asignatura:");
+        foreach (string a in asignaturas)
+        {
+            double nota;
+            do
+            {
+                Console.Write($"{a}: ");
+            } while (!double.TryParse(Console.ReadLine(),
+                     NumberStyles.Any, CultureInfo.InvariantCulture,
+                     out nota) || nota < 0 || nota > 10);
+
+            notas[a] = nota;
+        }
+
+        // 3. Filtrar aprobadas (nota ≥ 6)
+        const double corte = 6.0;
+        asignaturas = asignaturas
+                      .Where(a => notas[a] < corte)   // solo suspensas
+                      .ToList();
+
+        // 4. Mostrar resultado
+        Console.WriteLine("\nAsignaturas a repetir:");
+        if (asignaturas.Count == 0)
+        {
+            Console.WriteLine("¡Ninguna! Has aprobado todo.");
+        }
+        else
+        {
+            asignaturas.ForEach(a => Console.WriteLine($"• {a}"));
+        }
+    }
+}
+

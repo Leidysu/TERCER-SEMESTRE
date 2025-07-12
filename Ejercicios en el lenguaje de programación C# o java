@@ -1,0 +1,139 @@
+1.- Verificación de paréntesis balanceados
+import java.util.Stack;
+
+/**
+ * Clase con un método para verificar si los paréntesis, llaves y corchetes de una
+ * expresión están correctamente balanceados.
+ */
+public class BalanceChecker {
+
+    /**
+     * Determina si una expresión tiene sus símbolos de apertura y cierre balanceados.
+     *
+     * @param expr La expresión a verificar.
+     * @return true si la expresión está balanceada; false en caso contrario.
+     */
+    public static boolean isBalanced(String expr) {
+        Stack<Character> stack = new Stack<>();
+
+        for (char ch : expr.toCharArray()) {
+            switch (ch) {
+                case '(', '{', '[':
+                    // Cuando encontramos un símbolo de apertura, lo apilamos
+                    stack.push(ch);
+                    break;
+                case ')':
+                    if (stack.isEmpty() || stack.pop() != '(') {
+                        return false; // No hay coincidencia
+                    }
+                    break;
+                case '}':
+                    if (stack.isEmpty() || stack.pop() != '{') {
+                        return false;
+                    }
+                    break;
+                case ']':
+                    if (stack.isEmpty() || stack.pop() != '[') {
+                        return false;
+                    }
+                    break;
+                default:
+                    // Ignoramos otros caracteres (números, operadores, espacios…)
+            }
+        }
+        // Si queda algo en la pila, no estaba balanceado
+        return stack.isEmpty();
+    }
+
+    public static void main(String[] args) {
+        String ejemplo = "{7 + (8 * 5) - [(9 - 7) + (4 + 1)]}";
+        if (isBalanced(ejemplo)) {
+            System.out.println("Fórmula balanceada.");
+        } else {
+            System.out.println("Fórmula NO balanceada.");
+        }
+    }
+}
+
+
+
+
+2.- Torres de Hanoi usando pilas
+import java.util.Stack;
+
+/**
+ * Implementación del problema de las Torres de Hanoi utilizando pilas.
+ */
+public class TowersOfHanoi {
+    private Stack<Integer> source = new Stack<>();
+    private Stack<Integer> auxiliary = new Stack<>();
+    private Stack<Integer> target = new Stack<>();
+
+    /**
+     * Inicializa las torres colocando n discos en la torre origen.
+     *
+     * @param n Número de discos.
+     */
+    public TowersOfHanoi(int n) {
+        for (int i = n; i >= 1; i--) {
+            source.push(i);
+        }
+    }
+
+    /**
+     * Mueve los discos desde la torre origen hasta la torre destino.
+     *
+     * @param n Número de discos a mover.
+     * @param from Torre de origen.
+     * @param to Torre destino.
+     * @param aux Torre auxiliar.
+     */
+    private void moveDisks(int n, Stack<Integer> from, Stack<Integer> to, Stack<Integer> aux) {
+        if (n == 0) {
+            return;
+        }
+        // Mover n-1 discos de 'from' a 'aux'
+        moveDisks(n - 1, from, aux, to);
+
+        // Mover el disco restante de 'from' a 'to'
+        int disk = from.pop();
+        to.push(disk);
+        System.out.printf("Mover disco %d de %s a %s%n", disk,
+                nameOf(from), nameOf(to));
+
+        // Mover los n-1 discos de 'aux' a 'to'
+        moveDisks(n - 1, aux, to, from);
+    }
+
+    /**
+     * Devuelve un nombre legible para cada pila (torre).
+     */
+    private String nameOf(Stack<Integer> pile) {
+        if (pile == source) return "origen";
+        if (pile == auxiliary) return "auxiliar";
+        return "destino";
+    }
+
+    /**
+     * Inicia la resolución imprimiendo los pasos.
+     */
+    public void solve() {
+        int n = source.size();
+        moveDisks(n, source, target, auxiliary);
+    }
+
+    public static void main(String[] args) {
+        int n = 3; // Puedes cambiar el número de discos
+        TowersOfHanoi hanoi = new TowersOfHanoi(n);
+        System.out.printf("Resolviendo Torres de Hanoi para %d discos:%n", n);
+        hanoi.solve();
+    }
+}
+
+
+
+
+
+
+
+

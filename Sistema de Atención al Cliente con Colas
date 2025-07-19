@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+
+namespace CentroDeLlamadas
+{
+    // Clase Cliente para almacenar la información básica
+    public class Cliente
+    {
+        public string Nombre { get; set; }
+        public string Motivo { get; set; }
+
+        public Cliente(string nombre, string motivo)
+        {
+            Nombre = nombre;
+            Motivo = motivo;
+        }
+
+        public override string ToString()
+        {
+            return $"{Nombre} - Motivo: {Motivo}";
+        }
+    }
+
+    // Programa principal
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Queue<Cliente> colaClientes = new Queue<Cliente>();
+            bool salir = false;
+
+            while (!salir)
+            {
+                Console.WriteLine("\n--- SISTEMA DE ATENCIÓN AL CLIENTE ---");
+                Console.WriteLine("1. Registrar nuevo cliente");
+                Console.WriteLine("2. Atender siguiente cliente");
+                Console.WriteLine("3. Consultar cola de espera");
+                Console.WriteLine("4. Salir");
+                Console.Write("Seleccione una opción: ");
+                string opcion = Console.ReadLine();
+
+                switch (opcion)
+                {
+                    case "1":
+                        Console.Write("Ingrese el nombre del cliente: ");
+                        string nombre = Console.ReadLine();
+                        Console.Write("Ingrese el motivo de la llamada: ");
+                        string motivo = Console.ReadLine();
+                        colaClientes.Enqueue(new Cliente(nombre, motivo));
+                        Console.WriteLine("Cliente registrado correctamente.");
+                        break;
+                    case "2":
+                        if (colaClientes.Count > 0)
+                        {
+                            Cliente atendido = colaClientes.Dequeue();
+                            Console.WriteLine($"Atendiendo a: {atendido}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("No hay clientes en espera.");
+                        }
+                        break;
+                    case "3":
+                        Console.WriteLine("\nClientes en espera:");
+                        if (colaClientes.Count == 0)
+                        {
+                            Console.WriteLine("Ningún cliente en la cola.");
+                        }
+                        else
+                        {
+                            int pos = 1;
+                            foreach (var cliente in colaClientes)
+                            {
+                                Console.WriteLine($"{pos++}. {cliente}");
+                            }
+                        }
+                        break;
+                    case "4":
+                        salir = true;
+                        break;
+                    default:
+                        Console.WriteLine("Opción no válida. Intente de nuevo.");
+                        break;
+                }
+            }
+        }
+    }
+}

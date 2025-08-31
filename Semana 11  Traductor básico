@@ -1,0 +1,217 @@
+import java.util.*;
+import java.util.regex.*;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * Traductor básico EN <-> ES usando HashMap como diccionario.
+ * - Menú:
+ *   1) Traducir una frase
+ *   2) Agregar palabras al diccionario
+ *   0) Salir
+ *
+ * Características:
+ * - Traducción palabra por palabra solo si existe en el diccionario.
+ * - Bidireccional (inglés <-> español) con una sola estructura.
+ * - Conserva mayúsculas/minúsculas y puntuación original.
+ * - Diccionario base con >10 palabras sugeridas.
+ *
+ * Compilar: javac TraductorBasico.java
+ * Ejecutar: java TraductorBasico
+ */
+public class TraductorBasico {
+
+    // Diccionario principal: guarda ambas direcciones (en->es y es->en) en el mismo mapa
+    private static final Map<String, String> diccionario = new HashMap<>();
+
+    // Regex que separa palabras (incluyendo acentos) y no-palabras (espacios, puntuación)
+    private static final Pattern TOKENIZER = Pattern.compile(
+            "([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)|([^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)"
+    );
+
+    public static void main(String[] args) {
+        // Asegurar que el entorno usa UTF-8 (recomendado para Windows + consola)
+        System.setProperty("file.encoding", StandardCharsets.UTF_8.name());
+
+        inicializarDiccionarioBase();
+
+        Scanner sc = new Scanner(System.in, StandardCharsets.UTF_8);
+
+        while (true) {
+            mostrarMenu();
+            String opcion = sc.nextLine().trim();
+
+            switch (opcion) {
+                case "1": {
+                    System.out.print("Ingrese la frase a traducir: ");
+                    String frase = sc.nextLine();
+                    String traduccion = traducirFrase(frase);
+                    System.out.println("Traducción (parcial si aplica): " + traduccion);
+                    System.out.println();
+                    break;
+                }
+                case "2": {
+                    agregarPalabra(sc);
+                    System.out.println();
+                    break;
+                }
+                case "0": {
+                    System.out.println("¡Hasta pronto!");
+                    return;
+                }
+                default:
+                    System.out.println("Opción no válida. Intente nuevamente.\n");
+            }
+        }
+    }
+
+    private static void mostrarMenu() {
+        System.out.println("==================== MENÚ ====================");
+        System.out.println("1. Traducir una frase");
+        System.out.println("2. Agregar palabras al diccionario");
+        System.out.println("0. Salir");
+        System.out.print("\nSeleccione una opción: ");
+    }
+
+    private static void inicializarDiccionarioBase() {
+        // Lista base sugerida (elegimos una equivalencia cuando hay varias)
+        addPair("time", "tiempo");
+        addPair("person", "persona");
+        addPair("year", "año");
+        addPair("way", "forma");       // podría ser "camino" o "forma"
+        addPair("day", "día");
+        addPair("thing", "cosa");
+        addPair("man", "hombre");
+        addPair("world", "mundo");
+        addPair("life", "vida");
+        addPair("hand", "mano");
+        addPair("part", "parte");
+        addPair("child", "niño");      // simplificado; podría ser "niña" según contexto
+        addPair("eye", "ojo");
+        addPair("woman", "mujer");
+        addPair("place", "lugar");
+        addPair("work", "trabajo");
+        addPair("week", "semana");
+        addPair("case", "caso");
+        addPair("point", "punto");     // podría ser "tema" según contexto
+        addPair("government", "gobierno");
+        addPair("company", "empresa");
+    }
+
+    /**
+     * Agrega una pareja en ambos sentidos (inglés->español y español->inglés).
+     * Se guardan en minúsculas para búsqueda 'case-insensitive'.
+     */
+    private static void addPair(String en, String es) {
+        if (en == null || es == null) return;
+        String enKey = en.trim().toLowerCase(Locale.ROOT);
+        String esKey = es.trim().toLowerCase(Locale.ROOT);
+        if (!enKey.isEmpty() && !esKey.isEmpty()) {
+            diccionario.put(enKey, esKey);
+            diccionario.put(esKey, enKey);
+        }
+    }
+
+    /**
+     * Traduce una frase palabra por palabra si la palabra existe en el diccionario.
+     * - Conserva puntuación y espacios.
+     * - Respeta el estilo de capitalización del original:
+     *   * TODO MAYÚSCULAS
+     *   * Capitalizada (Primera en mayúscula)
+     *   * todo minúsculas
+     */
+    private static String traducirFrase(String frase) {
+        Matcher m = TOKENIZER.matcher(frase);
+        StringBuilder out = new StringBuilder();
+
+        while (m.find()) {
+            String word = m.group(1);
+            String nonWord = m.group(2);
+
+            if (word != null) {
+                String traducida = traducirPalabra(word);
+                out.append(adaptarCapitalizacion(word, traducida));
+            } else {
+                // espacios, comas, puntos, etc.
+                out.append(nonWord);
+            }
+        }
+        return out.toString();
+    }
+
+    /**
+     * Busca la palabra (case-insensitive) en el diccionario.
+     * Si existe, devuelve su traducción; si no, devuelve la misma palabra.
+     */
+    private static String traducirPalabra(String original) {
+        String key = original.toLowerCase(Locale.ROOT);
+        String val = diccionario.get(key);
+        return (val != null) ? val : original;
+    }
+
+    /**
+     * Ajusta la capitalización de 'traducida' según cómo venía 'original'.
+     */
+    private static String adaptarCapitalizacion(String original, String traducida) {
+        if (esTodoMayus(original)) {
+            return traducida.toUpperCase(Locale.ROOT);
+        } else if (esCapitalizada(original)) {
+            return capitalizar(traducida);
+        } else {
+            return traducida;
+        }
+    }
+
+    private static boolean esTodoMayus(String s) {
+        return s.equals(s.toUpperCase(Locale.ROOT));
+    }
+
+    private static boolean esCapitalizada(String s) {
+        if (s.isEmpty()) return false;
+        String first = s.substring(0, 1);
+        String rest = s.substring(1);
+        return first.equals(first.toUpperCase(Locale.ROOT)) &&
+               rest.equals(rest.toLowerCase(Locale.ROOT));
+    }
+
+    private static String capitalizar(String s) {
+        if (s.isEmpty()) return s;
+        if (s.length() == 1) return s.toUpperCase(Locale.ROOT);
+        return s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1).toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Permite agregar nuevas palabras al diccionario de forma interactiva.
+     * Se agregan en ambos sentidos automáticamente.
+     */
+    private static void agregarPalabra(Scanner sc) {
+        System.out.println("\nAgregar palabra al diccionario");
+        System.out.println("Indique el idioma de la palabra origen: (en = inglés, es = español)");
+        System.out.print("Idioma origen [en/es]: ");
+        String idiomaOrigen = sc.nextLine().trim().toLowerCase(Locale.ROOT);
+
+        if (!idiomaOrigen.equals("en") && !idiomaOrigen.equals("es")) {
+            System.out.println("Idioma no reconocido. Use 'en' o 'es'.");
+            return;
+        }
+
+        System.out.print("Palabra origen (" + (idiomaOrigen.equals("en") ? "inglés" : "español") + "): ");
+        String origen = sc.nextLine().trim();
+
+        System.out.print("Equivalente (" + (idiomaOrigen.equals("en") ? "español" : "inglés") + "): ");
+        String equivalente = sc.nextLine().trim();
+
+        if (origen.isEmpty() || equivalente.isEmpty()) {
+            System.out.println("No se aceptan vacíos. Intente nuevamente.");
+            return;
+        }
+
+        // Normalizamos a minúsculas en el almacenamiento (búsqueda case-insensitive)
+        if (idiomaOrigen.equals("en")) {
+            addPair(origen, equivalente);
+            System.out.println("Agregado: " + origen + " <-> " + equivalente);
+        } else {
+            addPair(equivalente, origen);
+            System.out.println("Agregado: " + equivalente + " <-> " + origen);
+        }
+    }
+}
